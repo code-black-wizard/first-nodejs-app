@@ -10,11 +10,11 @@ module.exports = (app, db, handleErr) => {
       const errors = validationResult(req)
       if (errors.isEmpty()) {
         res.status(200).send('Your create task')
-        db.collection('tasks').insertOne(req.body)
+        db.collection('tasks').insertOne({...req.body, date: new Date()})
           .then(result => {
             const { ops } = result
-            const { title, description, _id } = ops[0]
-            const newTask = new Task(title, description, _id)
+            const { title, description, _id, date } = ops[0]
+            const newTask = new Task(title, description, _id, date)
           })
       } else {
         handleErr(res, 400, 'Missing required fields')
