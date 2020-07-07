@@ -1,5 +1,3 @@
-const { ContextHandlerImpl } = require("express-validator/src/chain")
-
 module.exports = filters => {
   let arr = []
   filters.forEach(filter => {
