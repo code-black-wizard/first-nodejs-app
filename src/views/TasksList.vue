@@ -1,75 +1,79 @@
 <template>
   <div class="container">
     <div class="row justify-content-center">
-      <div v-for="task in tasks" :key="task._id" class="col-sm-12 col-md-6 mb-4">
+      <div class="row justify-content-between mb-4">
+        <div class="col-md-6">
+          <input @blur="fetchTasks(pagination = {})" placeholder="input title task..." v-model.trim="title" type="text" id="inputText" class="form-control" />
+        </div>
+        <div class="col-md-4">
+          <select @change="changeLimit" class="form-select" aria-label="Default select example" v-model="pagination.limit">
+            <option selected>Limit</option>
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15">15</option>
+          </select>
+        </div>
+      </div>
+      <div v-for="task in getTasks" :key="task._id" class="col-sm-12 col-md-6 mb-4">
         <div class="card position-relative">
           <div class="card-body">
             <h5 class="card-title">{{ task.title }}</h5>
             <p class="card-text">{{ task.description.length > 100 ? `${task.description.slice(0, 100)}...` : task.description }}</p>
-            <a href="#" class="btn btn-primary">Go details</a>
+            <router-link :to="`/task/${task._id}`" class="btn btn-primary">Go details</router-link>
           </div>
           <div class="card-footer text-muted">
             {{ `${new Date(task.date).getFullYear()}/${new Date(task.date).getMonth() + 1}/${new Date(task.date).getDate()}` }}
           </div>
-          <svg @click="removeTask(task._id)" width="2em" height="2em" viewBox="0 0 16 16" class="bi bi-x text-danger delete-icon" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
-            <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
-          </svg>
         </div>
       </div>
+      <Pagination @action="fetchTasks" :pagination="pagination" />
     </div>
   </div>
 </template>
 
 <script>
+import Pagination from '@/components/UI/AppPagination'
+
 export default {
+  components: {
+    Pagination
+  },
   data() {
     return {
-      tasks: []
+      tasks: [],
+      pagination: {},
+      title: ''
     }
   },
   methods: {
-    removeTask(id) {
-      this.$axios.delete(`/remove-task/${id}`)
+    fetchTasks (pagination = {}) {
+      this.$axios.get('/tasks', {
+        params: {
+          ...this.pagination, ...pagination, title: this.title ? this.title : null
+        }
+      })
         .then(res => {
-          this.getTasks()
-          this.$notify({
-            group: 'success',
-            title: res.data,
-            type: 'success'
-          })
-        })
-        .catch(err => {
-          this.$notify({
-            group: 'error',
-            title: err.response.data.message,
-            type: 'error' 
-          })
-        })
-    },
-    getTasks() {
-      this.$axios.get('/get-tasks')
-        .then(res => {
-          this.tasks = res.data
+          this.tasks = res.data.data,
+          this.pagination = res.data.pagination
         })
         .catch(err => {
           console.log(err.response.data.message)
         })
+    },
+    changeLimit() {
+      this.fetchTasks()
+    }
+  },
+  computed: {
+    getTasks() {
+      return this.tasks
     }
   },
   created() {
-    this.getTasks()
+    this.fetchTasks()
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
-  .delete-icon {
-    position: absolute;
-    top: 0;
-    right: 0;
-    cursor: pointer;
-  }
-
 </style>

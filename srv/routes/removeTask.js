@@ -2,7 +2,7 @@ const mongodb = require('mongodb')
 const { param, validationResult } = require('express-validator')
 
 module.exports = (app, db, handleErr) => {
-  app.delete('/remove-task/:id', [
+  app.delete('/task/:id', [
     param('id').not().isEmpty().trim()
   ], (req, res, next) => {
     try {
@@ -11,8 +11,12 @@ module.exports = (app, db, handleErr) => {
         db.collection('tasks').findOneAndDelete({
           _id: mongodb.ObjectID(req.params.id)
         })
-          .then(() => {
-            res.status(200).send('Your remove task')
+          .then(result => {
+            if (result.value) {
+              res.status(200).send('Your remove task')
+            } else {
+              handleErr(res, 400, 'Task with such id not found')
+            }
           })
       } else {
         handleErr(res, 400, 'Missing ID field')
