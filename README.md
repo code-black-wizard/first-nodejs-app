@@ -1,4 +1,4 @@
-# first-fullstack-app
+# Frontend
 
 ## Project setup
 ```
@@ -15,5 +15,24 @@ yarn serve
 yarn build
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# Backend
+
+## Project setup
+```
+yarn install
+```
+
+### Creating the Initial Server
+```
+yarn serve
+```
+
+# MongoDB
+
+## Project setup
+```
+Install MongoDB
+```
+
+Connect to MongoDB
+```
